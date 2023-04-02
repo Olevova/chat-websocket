@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket</title>
+  </head>
+  <body>
+    <div>
+      <form action="" id="user-name">
+        <label for="">Chat user</label>
+        <input type="text" name="user" placeholder="your name" required />
+      </form>
+    </div>
+    <div id="chat-messege">
+      <form action="" id="chat-form">
+        <div>
+          <textarea id="story" name="message" rows="5" cols="33"></textarea>
+        </div>
+        <button type="submit">send</button>
+      </form>
+    </div>
+    <div id="chat"></div>
+
+    <script>
+      const ws = new WebSocket("ws://localhost:5000");
+      ws.onmessage = ({ data }) => {
+        console.log(data);
+        const { user, message } = JSON.parse(data);
+        chat.insertAdjacentHTML(
+          "beforeend",
+          `<p><span>${user}</span> ${message}</p>`
+        );
+      };
+      let user = "";
+      const userNameForm = document.querySelector("#user-name");
+      userNameForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        user = e.target.user.value;
+        console.log(e.target.user.value);
+        userNameForm.remove();
+      });
+      const chat = document.querySelector("#chat");
+      const chatForm = document.querySelector("#chat-form");
+      chatForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const message = e.target.message.value;
+        chat.insertAdjacentHTML(
+          "beforeend",
+          `<p><span>${user}</span> ${message}</p>`
+        );
+        const data = {
+          user,
+          message,
+        };
+        ws.send(JSON.stringify(data));
+        chatForm.reset();
+      });
+      // const ws = new WebSocket("ws://localhost:5000");
+      // // ws.onopen = () => {
+      // //   console.log("We are here");
+      // // };
+      // ws.onopen = () => {};
+
+      // ws.onmessage = (e) => {
+      //   console.log(e.data, e);
+      // };
+    </script>
+  </body>
+</html>
